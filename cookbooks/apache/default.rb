@@ -1,17 +1,31 @@
-# Apacheインストール
-package 'httpd'
+package "httpd"
 
-# httpd.confのバックアップ
-execute 'httpd.conf backup' do
-    command 'cp /etc/httpd/conf/httpd.conf /etc/httpd/conf/httpd.conf.org'
+execute "backup apache httpd.conf" do
+  user "root"
+  command "cp /etc/httpd/conf/httpd.conf /etc/httpd/conf/httpd.conf.org"
+  not_if "test -f /etc/httpd/conf/httpd.conf.org"
 end
 
-# wwwユーザ追加
-execute 'add www user' do
-    user "root"
-    command <<-EOL
-        useradd www
-        gpasswd -a apache www
-        chown -R www:apache /var/www/html
-    EOL
+# .htaccessを有効にする
+file "/etc/httpd/conf/httpd.conf" do
+  user "root"
+  action :edit
+  block do |content|
+    content.gsub!("AllowOverride None", "AllowOverride All")
+  end
+  only_if "test -f /etc/httpd/conf/httpd.conf"
+end
+
+# ユーザーを作成する
+execute "add www user" do
+  user "root"
+  command <<-EOS
+    useradd www
+    gpasswd -a apache www
+    chown -R www:www /var/www/html
+  EOS
+end
+
+service "httpd" do
+  action [:enable, :start]
 end
