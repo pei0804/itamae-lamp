@@ -1,5 +1,7 @@
 # MySQLインストール
-package 'mysql-server'
+package 'mysql-server' do
+    version '5.7.18'
+end
 
 # MySQL権限設定
 execute 'mysql permission' do
