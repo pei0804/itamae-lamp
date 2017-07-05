@@ -1,5 +1,7 @@
 # itemae-lamp
 
+CentOS6.5
+
 install gem.
 
 ```console
